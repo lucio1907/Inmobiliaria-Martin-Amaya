@@ -9,6 +9,8 @@ export const metadata = {
   description: "Explora nuestro catálogo completo de casas, departamentos y terrenos de lujo.",
 };
 
+export const revalidate = 3600; // revalidate at most every hour
+
 async function PropertiesList({ searchParams }: { searchParams: any }) {
   const params = await searchParams;
   const properties = await getProperties({
@@ -39,24 +41,24 @@ async function PropertiesList({ searchParams }: { searchParams: any }) {
 export default async function PropertiesPage({ searchParams }: { searchParams: Promise<any> }) {
   const params = await searchParams;
   return (
-    <div className="flex flex-col gap-12 pb-20">
-      <div className="bg-slate-950 py-24 md:py-32 relative overflow-hidden">
+    <div className="flex flex-col pb-20">
+      {/* Header Area */}
+      <div className="bg-slate-950 pt-28 pb-16 md:pt-36 md:pb-24 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] md:w-[600px] md:h-[600px] bg-accent/5 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
-        <div className="container-custom relative z-10 text-left px-6 md:px-8">
-          <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-white mb-4 md:mb-8 tracking-tighter leading-none">Propiedades</h1>
+        <div className="container-custom relative z-10 text-left">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white mb-4 md:mb-8 tracking-tighter leading-none">Propiedades</h1>
           <p className="text-slate-400 text-lg md:text-xl lg:text-2xl max-w-2xl font-medium leading-relaxed">
             Explora nuestro catálogo exclusivo y encuentra la propiedad que siempre soñaste.
           </p>
         </div>
       </div>
 
-      <div className="container-custom -mt-16 md:-mt-24 relative z-20">
+      {/* Grid Area */}
+      <div className="container-custom relative z-20 mt-4 md:mt-8">
         {/* We could add horizontal filters here in the future */}
-        <div className="bg-slate-900/60 backdrop-blur-3xl p-4 sm:p-6 md:p-8 rounded-[2rem] md:rounded-[3.5rem] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] mb-16">
-            <Suspense fallback={<SkeletonGrid count={6} />}>
-               <PropertiesList searchParams={params} />
-            </Suspense>
-        </div>
+        <Suspense fallback={<SkeletonGrid count={6} />}>
+          <PropertiesList searchParams={params} />
+        </Suspense>
       </div>
     </div>
   );

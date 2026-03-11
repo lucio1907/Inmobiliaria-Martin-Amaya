@@ -16,14 +16,21 @@ export default function Navbar() {
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset'
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
+    }
+    
+    return () => {
+      document.body.style.overflow = ''
+      document.documentElement.style.overflow = ''
     }
   }, [isMobileMenuOpen])
 
   const navLinks = [
     { href: '/', label: 'Inicio', isScroll: true },
-    { href: '/#propiedades', label: 'Propiedades', isScroll: true },
+    { href: '/#propiedades', label: 'Propiedades Destacadas', isScroll: true },
     { href: '/#servicios', label: 'Servicios', isScroll: true },
     { href: '/#nosotros', label: 'Nosotros', isScroll: true },
     { href: '/#contacto', label: 'Contacto', isScroll: true },
@@ -52,9 +59,9 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center gap-8">
-            {navLinks.slice(1).map((link) => (
+            {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 onClick={(e) => link.isScroll ? onNavClick(e, link.href, true) : null}
                 className={`relative text-sm font-bold transition-colors tracking-wide uppercase group py-2 ${link.label === 'Contacto' ? 'text-slate-200 hover:text-white' : 'text-slate-400 hover:text-accent'
@@ -90,7 +97,7 @@ export default function Navbar() {
             <div className="flex flex-col items-center gap-6 text-center p-6 w-full max-h-[85vh] overflow-y-auto">
               {navLinks.map((link, index) => (
                 <motion.div
-                  key={link.href}
+                  key={link.label}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}

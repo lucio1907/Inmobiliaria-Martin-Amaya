@@ -66,33 +66,35 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
 
   return (
     <form onSubmit={handleSubmit} className="space-y-12">
-      <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
-        <h2 className="text-2xl font-black text-slate-900 mb-8">Información General</h2>
+      <div className="bg-slate-900/50 backdrop-blur-2xl p-6 md:p-8 lg:p-12 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border border-white/10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-[80px] -z-10 pointer-events-none translate-x-1/2 -translate-y-1/2" />
+        
+        <h2 className="text-2xl font-black text-white mb-8 border-b border-white/5 pb-4">Información General</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="md:col-span-2">
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Título de la Propiedad</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Título de la Propiedad</label>
             <input 
               type="text" 
               required
-              className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+              className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Descripción</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Descripción</label>
             <textarea 
               rows={5}
               required
-              className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+              className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium resize-none"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Operación</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Operación</label>
             <select 
-              className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium appearance-none"
+              className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium appearance-none"
               value={formData.operation}
               onChange={(e) => setFormData(prev => ({ ...prev, operation: e.target.value as any }))}
             >
@@ -101,9 +103,9 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
             </select>
           </div>
           <div>
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Tipo</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Tipo</label>
             <select 
-              className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium appearance-none"
+              className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium appearance-none"
               value={formData.type}
               onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
             >
@@ -114,10 +116,10 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
             </select>
           </div>
           <div>
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Precio</label>
-            <div className="flex gap-2">
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Precio</label>
+            <div className="flex gap-3">
               <select 
-                className="w-24 px-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+                className="w-28 px-4 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
                 value={formData.currency}
                 onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value as any }))}
               >
@@ -127,18 +129,19 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
               <input 
                 type="number" 
                 required
-                className="flex-grow px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+                className="flex-grow px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
                 value={formData.price}
+                onFocus={(e) => { if (formData.price === 0) setFormData(prev => ({ ...prev, price: '' as any })) }}
                 onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Slug (URL)</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Slug (URL)</label>
             <input 
               type="text" 
               placeholder="ej: casa-moderna-en-nordelta"
-              className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+              className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium placeholder:text-slate-600"
               value={formData.slug}
               onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
             />
@@ -146,98 +149,107 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
         </div>
       </div>
 
-      <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
-        <h2 className="text-2xl font-black text-slate-900 mb-8">Ubicación y Características</h2>
+      <div className="bg-slate-900/50 backdrop-blur-2xl p-6 md:p-8 lg:p-12 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border border-white/10 relative overflow-hidden">
+        <h2 className="text-2xl font-black text-white mb-8 border-b border-white/5 pb-4">Ubicación y Características</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Ciudad / Barrio</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Ciudad / Barrio</label>
             <input 
               type="text" required
-              className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+              className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
               value={formData.location.city}
               onChange={(e) => setFormData(prev => ({ ...prev, location: { ...prev.location, city: e.target.value } }))}
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Dirección</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Dirección</label>
             <input 
               type="text" required
-              className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+              className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
               value={formData.location.address}
               onChange={(e) => setFormData(prev => ({ ...prev, location: { ...prev.location, address: e.target.value } }))}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">m² Totales</label>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">m² Totales</label>
               <input 
                 type="number" required
-                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+                className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
                 value={formData.features.m2_total}
+                onFocus={(e) => { if (formData.features.m2_total === 0) setFormData(prev => ({ ...prev, features: { ...prev.features, m2_total: '' as any } })) }}
                 onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, m2_total: Number(e.target.value) } }))}
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Ambientes</label>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Ambientes</label>
               <input 
                 type="number" required
-                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+                className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
                 value={formData.features.rooms}
+                onFocus={(e) => { if (formData.features.rooms === 0) setFormData(prev => ({ ...prev, features: { ...prev.features, rooms: '' as any } })) }}
                 onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, rooms: Number(e.target.value) } }))}
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-2">Baños</label>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Baños</label>
               <input 
                 type="number" required
-                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-slate-900 transition-all font-medium"
+                className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
                 value={formData.features.bathrooms}
+                onFocus={(e) => { if (formData.features.bathrooms === 0) setFormData(prev => ({ ...prev, features: { ...prev.features, bathrooms: '' as any } })) }}
                 onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, bathrooms: Number(e.target.value) } }))}
               />
             </div>
-            <div className="flex items-end pb-4">
-               <label className="flex items-center gap-3 cursor-pointer select-none">
-                 <input 
-                   type="checkbox"
-                   className="w-6 h-6 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900"
-                   checked={formData.features.garage}
-                   onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, garage: e.target.checked } }))}
-                 />
-                 <span className="font-bold text-slate-600">Tiene Cochera</span>
+            <div className="flex items-center pt-6">
+               <label className="flex items-center gap-4 cursor-pointer select-none group">
+                 <div className="relative flex items-center justify-center">
+                   <input 
+                     type="checkbox"
+                     className="peer w-6 h-6 rounded border-white/10 bg-slate-950/50 text-accent focus:ring-accent focus:ring-offset-slate-900 transition-colors cursor-pointer appearance-none checked:bg-accent checked:border-accent"
+                     checked={formData.features.garage}
+                     onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, garage: e.target.checked } }))}
+                   />
+                   <svg className="absolute w-4 h-4 text-slate-950 pointer-events-none opacity-0 peer-checked:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                   </svg>
+                 </div>
+                 <span className="font-bold text-slate-300 group-hover:text-white transition-colors">Tiene Cochera</span>
                </label>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-slate-100">
-        <h2 className="text-2xl font-black text-slate-900 mb-8">Multimedia y Visibilidad</h2>
-        <div className="space-y-8">
+      <div className="bg-slate-900/50 backdrop-blur-2xl p-6 md:p-8 lg:p-12 rounded-[2rem] lg:rounded-[2.5rem] shadow-2xl border border-white/10 relative overflow-hidden">
+        <h2 className="text-2xl font-black text-white mb-8 border-b border-white/5 pb-4">Multimedia y Visibilidad</h2>
+        <div className="space-y-10">
           <div>
-            <label className="block text-sm font-bold text-slate-400 uppercase tracking-tighter mb-4">Fotos de la Propiedad</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Fotos de la Propiedad</label>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {formData.images.map((url, i) => (
-                <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group border border-slate-100">
+                <div key={i} className="relative aspect-square rounded-2xl overflow-hidden group border border-white/10 shadow-lg">
                   <CldImage 
                     src={url} 
                     alt="" 
                     width={200}
                     height={200}
                     crop="fill"
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                   />
+                  <div className="absolute inset-0 bg-slate-950/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <button 
                     type="button"
                     onClick={() => removeImage(i)}
-                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute inset-0 m-auto w-10 h-10 flex items-center justify-center bg-red-500 hover:bg-red-400 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 shadow-lg"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={18} />
                   </button>
                   {i === 0 && (
-                    <span className="absolute bottom-2 left-2 px-2 py-1 bg-slate-900 text-white text-[10px] font-bold rounded-md">PORTADA</span>
+                     <span className="absolute bottom-3 left-3 px-3 py-1.5 bg-accent text-slate-950 text-[10px] font-black tracking-widest rounded-lg shadow-lg">PORTADA</span>
                   )}
                 </div>
               ))}
@@ -256,37 +268,42 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
                   <button 
                     type="button" 
                     onClick={() => open()}
-                    className="aspect-square rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-slate-900 hover:text-slate-900 transition-all"
+                    className="aspect-square rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center justify-center gap-3 text-slate-500 hover:border-accent hover:text-accent hover:bg-accent/5 transition-all group"
                   >
-                    <ImageIcon size={32} />
-                    <span className="text-xs font-bold uppercase tracking-tight">Subir Fotos</span>
+                    <ImageIcon size={32} className="group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-black uppercase tracking-widest">Subir Fotos</span>
                   </button>
                 )}
               </CldUploadWidget>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-8 py-6 border-t border-slate-50">
-            <label className="flex items-center gap-3 cursor-pointer select-none">
-              <input 
-                type="checkbox"
-                className="w-6 h-6 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900"
-                checked={formData.featured}
-                onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
-              />
-              <span className="font-bold text-slate-900 uppercase tracking-tighter">Propiedad Destacada</span>
+          <div className="flex flex-wrap items-center gap-10 pt-8 border-t border-white/5">
+            <label className="flex items-center gap-4 cursor-pointer select-none group">
+               <div className="relative flex items-center justify-center">
+                 <input 
+                   type="checkbox"
+                   className="peer w-6 h-6 rounded border-white/10 bg-slate-950/50 text-accent focus:ring-accent focus:ring-offset-slate-900 transition-colors cursor-pointer appearance-none checked:bg-accent checked:border-accent"
+                   checked={formData.featured}
+                   onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                 />
+                 <svg className="absolute w-4 h-4 text-slate-950 pointer-events-none opacity-0 peer-checked:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                 </svg>
+               </div>
+               <span className="font-black text-white uppercase tracking-widest">Propiedad Destacada</span>
             </label>
 
-            <div className="flex items-center gap-4">
-              <label className="text-sm font-bold text-slate-400 uppercase tracking-tighter">Estado:</label>
-              <div className="flex bg-slate-50 p-1 rounded-xl">
+            <div className="flex items-center gap-6">
+              <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Estado:</label>
+              <div className="flex bg-slate-950/80 p-1.5 rounded-2xl border border-white/5">
                  {(['available', 'sold', 'archived'] as const).map((status) => (
                    <button
                      key={status}
                      type="button"
                      onClick={() => setFormData(prev => ({ ...prev, status }))}
-                     className={`px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all ${
-                       formData.status === status ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'
+                     className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                       formData.status === status ? 'bg-accent text-slate-950 shadow-[0_0_20px_rgba(197,160,89,0.2)]' : 'text-slate-400 hover:text-white hover:bg-white/5'
                      }`}
                    >
                      {status === 'available' ? 'Disponible' : status === 'sold' ? 'Vendido' : 'Archivado'}
@@ -298,21 +315,22 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 pb-12">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-4 pb-12">
         <button 
           type="button"
           onClick={() => router.back()}
-          className="px-8 py-4 bg-white text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all"
+          className="px-8 py-4 bg-white/5 text-slate-300 font-bold rounded-2xl hover:bg-white/10 hover:text-white transition-all w-full sm:w-auto text-center"
         >
           Cancelar
         </button>
         <button 
           type="submit"
           disabled={loading}
-          className="px-12 py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-2"
+          className="group relative px-12 py-4 bg-accent text-slate-950 font-black rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(197,160,89,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_60px_rgba(197,160,89,0.5)] flex items-center justify-center gap-3 w-full sm:w-auto disabled:opacity-50 disabled:pointer-events-none"
         >
-          {loading && <Loader2 className="animate-spin" size={20} />}
-          {isEditing ? 'Guardar Cambios' : 'Crear Propiedad'}
+          <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+          {loading && <Loader2 className="animate-spin relative z-10" size={20} />}
+          <span className="relative z-10 tracking-wide uppercase">{isEditing ? 'Guardar Cambios' : 'Crear Propiedad'}</span>
         </button>
       </div>
     </form>

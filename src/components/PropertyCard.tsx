@@ -37,8 +37,8 @@ export default function PropertyCard({ property }: { property: Property }) {
             className="aspect-property transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <div className="aspect-property bg-slate-200 flex items-center justify-center">
-            <span className="text-slate-400">Sin imagen</span>
+          <div className="aspect-property bg-white/5 flex items-center justify-center border-b border-white/5">
+            <span className="text-slate-600 font-bold uppercase tracking-widest text-[10px]">Sin imagen</span>
           </div>
         )}
         

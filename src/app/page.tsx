@@ -6,7 +6,11 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import ScrollReveal from "@/components/ScrollReveal";
 import AboutUs from "@/components/AboutUs";
-import ContactSection from "@/components/ContactSection";export default async function Home() {
+import ContactSection from "@/components/ContactSection";
+
+export const revalidate = 3600; // revalidate at most every hour
+
+export default async function Home() {
   const featuredProperties = await getProperties({ featured: true });
 
   return (

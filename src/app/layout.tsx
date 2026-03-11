@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import NavigationWrapper from "@/components/NavigationWrapper";
 
 export const metadata: Metadata = {
   title: "Amaya | Propiedades de Lujo",
@@ -17,15 +16,9 @@ export default function RootLayout({
     <html lang="es" className="overflow-x-hidden">
       <body className="antialiased font-sans selection:bg-slate-900 selection:text-white w-full overflow-x-hidden relative">
         <div className="relative w-full overflow-x-hidden min-h-screen flex flex-col">
-          <div className="luxe-bg" />
-          <div className="mesh-glow -top-48 -left-48 bg-slate-200" />
-          <div className="mesh-glow top-1/2 -right-48 bg-slate-100" />
-          
-          <Navbar />
-          <main className="pt-20 flex-grow w-full">
+          <NavigationWrapper>
             {children}
-          </main>
-          <Footer />
+          </NavigationWrapper>
         </div>
       </body>
     </html>

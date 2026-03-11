@@ -79,6 +79,7 @@ export async function createProperty(data: Omit<Property, 'id' | 'createdAt'>) {
       createdAt: new Date(),
     });
     revalidatePath('/');
+    revalidatePath('/propiedades');
     revalidatePath('/admin');
     return { success: true, id: docRef.id };
   } catch (error) {
@@ -91,8 +92,9 @@ export async function updateProperty(id: string, data: Partial<Property>) {
   try {
     await adminDb.collection(COLLECTION_NAME).doc(id).update(data);
     revalidatePath('/');
+    revalidatePath('/propiedades');
+    revalidatePath(`/propiedades/${data.slug || id}`);
     revalidatePath('/admin');
-    revalidatePath(`/properties/${data.slug || id}`);
     return { success: true };
   } catch (error) {
     console.error('Error updating property:', error);
@@ -104,6 +106,7 @@ export async function deleteProperty(id: string) {
   try {
     await adminDb.collection(COLLECTION_NAME).doc(id).delete();
     revalidatePath('/');
+    revalidatePath('/propiedades');
     revalidatePath('/admin');
     return { success: true };
   } catch (error) {

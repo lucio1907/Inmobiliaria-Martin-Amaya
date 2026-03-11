@@ -17,10 +17,10 @@ export default async function EditPropertyPage({ params }: { params: Promise<{ i
   } as Property;
 
   return (
-    <div className="container-custom py-12">
-      <div className="mb-12">
-        <h1 className="text-4xl font-black text-slate-900 mb-2">Editar Propiedad</h1>
-        <p className="text-slate-500 font-medium">Modifica los datos de la propiedad seleccionada</p>
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-8 lg:mb-12">
+        <h1 className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight">Editar Propiedad</h1>
+        <p className="text-slate-400 font-medium text-base md:text-lg">Modifica los datos de la propiedad seleccionada.</p>
       </div>
       <PropertyForm initialData={property} isEditing />
     </div>

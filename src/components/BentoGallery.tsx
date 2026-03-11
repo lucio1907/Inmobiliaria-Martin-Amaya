@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CldImage } from 'next-cloudinary'
 import { motion, AnimatePresence } from 'framer-motion'
 import { clsx, type ClassValue } from 'clsx'
@@ -13,6 +13,20 @@ function cn(...inputs: ClassValue[]) {
 
 export default function BentoGallery({ images, title }: { images: string[], title: string }) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (selectedImage !== null) {
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+      document.documentElement.style.overflow = 'unset'
+    }
+    return () => { 
+      document.body.style.overflow = 'unset'
+      document.documentElement.style.overflow = 'unset'
+    }
+  }, [selectedImage])
 
   if (!images || images.length === 0) return (
     <div className="aspect-video bg-slate-900 rounded-2xl border border-white/5 flex items-center justify-center">
@@ -40,9 +54,9 @@ export default function BentoGallery({ images, title }: { images: string[], titl
     <>
       <div className={cn(
         "grid gap-2 md:gap-4",
-        images.length === 1 ? "grid-cols-1" : 
-        images.length === 2 ? "grid-cols-1 md:grid-cols-2" :
-        "grid-cols-2 md:grid-cols-4 auto-rows-[150px] md:auto-rows-[300px]"
+        images.length === 1 && "grid-cols-1",
+        images.length === 2 && "grid-cols-1 md:grid-cols-2 auto-rows-[250px] md:auto-rows-[400px]",
+        images.length >= 3 && "grid-cols-2 md:grid-cols-4 auto-rows-[150px] md:auto-rows-[300px]"
       )}>
         {displayImages.map((img, i) => (
           <motion.div
@@ -53,11 +67,12 @@ export default function BentoGallery({ images, title }: { images: string[], titl
             onClick={() => openLightbox(i)}
             className={cn(
               "relative rounded-xl md:rounded-2xl overflow-hidden border border-white/5 shadow-xl md:shadow-2xl transition-all duration-500 cursor-pointer group",
-              images.length >= 3 && i === 0 ? "col-span-2 row-span-2 md:col-span-2 md:row-span-2" : "",
-              images.length >= 3 && i === 1 ? "col-span-1 row-span-1 md:col-span-2 md:row-span-1" : "",
-              images.length >= 4 && i > 1 ? "col-span-1 row-span-1 md:col-span-1 md:row-span-1" : "",
-              images.length === 1 ? "aspect-video md:aspect-[21/9]" : "",
-              images.length === 2 ? "aspect-square md:aspect-auto" : ""
+              images.length === 1 && "aspect-video md:aspect-[21/9]",
+              images.length >= 3 && i === 0 && "col-span-2 row-span-2",
+              images.length === 3 && i > 0 && "col-span-1 md:col-span-2 row-span-1",
+              images.length === 4 && i === 1 && "col-span-1 md:col-span-2 row-span-1",
+              images.length === 4 && i > 1 && "col-span-1 row-span-1",
+              images.length >= 5 && i > 0 && "col-span-1 row-span-1"
             )}
           >
             <CldImage
@@ -70,7 +85,7 @@ export default function BentoGallery({ images, title }: { images: string[], titl
             />
             
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500 flex items-center justify-center">
-                <Maximize2 className="text-white opacity-0 group-hover:opacity-100 transition-opacity scale-75 group-hover:scale-100 transition-transform duration-500 w-6 h-6 md:w-8 md:h-8" />
+              <Maximize2 className="text-white opacity-0 group-hover:opacity-100 transition-opacity scale-75 group-hover:scale-100 transition-transform duration-500 w-6 h-6 md:w-8 md:h-8" />
             </div>
 
             {i === 4 && showMore && (
@@ -94,21 +109,21 @@ export default function BentoGallery({ images, title }: { images: string[], titl
           >
             <button 
               onClick={closeLightbox}
-              className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors z-[110]"
+              className="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white transition-all z-50 bg-slate-900/50 hover:bg-slate-900 p-3 rounded-full backdrop-blur-md border border-white/10"
             >
-              <X size={40} />
+              <X size={28} className="md:w-8 md:h-8" />
             </button>
 
             <button 
               onClick={prevImage}
-              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors z-[110] bg-white/5 p-4 rounded-full backdrop-blur-md"
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors z-50 bg-white/5 p-4 rounded-full backdrop-blur-md"
             >
               <ChevronLeft size={32} />
             </button>
 
             <button 
               onClick={nextImage}
-              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors z-[110] bg-white/5 p-4 rounded-full backdrop-blur-md"
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors z-50 bg-white/5 p-4 rounded-full backdrop-blur-md"
             >
               <ChevronRight size={32} />
             </button>
