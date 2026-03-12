@@ -3,8 +3,16 @@
 import ContactForm from '@/components/ContactForm'
 import { MapPin, Phone, Mail, Clock } from 'lucide-react'
 import ScrollReveal from './ScrollReveal'
+import { getSettings } from '@/app/actions/settings'
+import { useEffect, useState } from 'react'
+import { SiteSettings } from '@/types/settings'
 
 export default function ContactSection() {
+  const [settings, setSettings] = useState<SiteSettings | null>(null)
+
+  useEffect(() => {
+    getSettings().then(setSettings)
+  }, [])
   return (
     <section id="contacto" className="pt-16 lg:pt-24 pb-16 lg:pb-24 relative overflow-hidden">
       {/* Background decorations for section */}
@@ -37,9 +45,9 @@ export default function ContactSection() {
                   <div>
                     <h4 className="text-white font-bold text-base mb-1">Oficina Central</h4>
                     <p className="text-slate-400 text-sm leading-relaxed">
-                      Av. Libertador 1234, Piso 5<br />
-                      Buenos Aires, Argentina<br />
-                      M.P. N° 4022
+                      {settings?.contact.address || "Av. Libertador 1234, Piso 5"}<br />
+                      {settings?.contact.office || "Buenos Aires, Argentina"}<br />
+                      {settings?.about.professional_title || "M.P. N° 4022"}
                     </p>
                   </div>
                 </div>
@@ -51,11 +59,11 @@ export default function ContactSection() {
                   <div>
                     <h4 className="text-white font-bold text-base mb-1">Teléfonos</h4>
                     <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                      <a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '5491112345678'}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block">
-                        +54 9 11 1234-5678 (WhatsApp)
+                      <a href={`https://wa.me/${settings?.whatsapp.number || '5491112345678'}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block">
+                        {settings?.contact.phone || "+54 9 11 1234-5678"} (WhatsApp)
                       </a>
-                      <a href="tel:+541143218765" className="hover:text-white transition-colors block mt-1">
-                        +54 11 4321-8765 (Fijo)
+                      <a href={`tel:${settings?.contact.phone.replace(/[^0-9]/g, '')}`} className="hover:text-white transition-colors block mt-1">
+                        {settings?.contact.phone || "+54 11 4321-8765"} (Fijo)
                       </a>
                     </p>
                   </div>
@@ -68,11 +76,8 @@ export default function ContactSection() {
                   <div>
                     <h4 className="text-white font-bold text-base mb-1">Email</h4>
                     <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                      <a href="mailto:contacto@inmobiliariaamaya.com" className="hover:text-white transition-colors block">
-                        contacto@inmobiliariaamaya.com
-                      </a>
-                      <a href="mailto:ventas@inmobiliariaamaya.com" className="hover:text-white transition-colors block mt-1">
-                        ventas@inmobiliariaamaya.com
+                      <a href={`mailto:${settings?.contact.email || "contacto@inmobiliariaamaya.com"}`} className="hover:text-white transition-colors block">
+                        {settings?.contact.email || "contacto@inmobiliariaamaya.com"}
                       </a>
                     </p>
                   </div>
@@ -85,8 +90,7 @@ export default function ContactSection() {
                   <div>
                     <h4 className="text-white font-bold text-base mb-1">Horarios</h4>
                     <p className="text-slate-400 text-sm leading-relaxed">
-                      Lunes a Viernes: 9:00 a 18:00 hs<br />
-                      Sábados: 10:00 a 13:00 hs
+                      {settings?.contact.schedule || "Lunes a Viernes: 9:00 a 18:00 hs"}
                     </p>
                   </div>
                 </div>

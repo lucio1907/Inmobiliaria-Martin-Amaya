@@ -11,6 +11,8 @@ export async function getProperties(filters?: Partial<{
   operation: string;
   minPrice: number;
   maxPrice: number;
+  location: string;
+  q: string;
   featured: boolean;
 }>) {
   try {
@@ -31,6 +33,11 @@ export async function getProperties(filters?: Partial<{
     if (filters?.maxPrice) {
       query = query.where('price', '<=', filters.maxPrice);
     }
+    if (filters?.location) {
+      // Keep legacy support but favor 'q' if provided
+      query = query.where('location.city', '>=', filters.location)
+                   .where('location.city', '<=', filters.location + '\uf8ff');
+    }
 
     const snapshot = await query.get();
     let properties = snapshot.docs.map((doc: any) => {
@@ -46,6 +53,17 @@ export async function getProperties(filters?: Partial<{
     properties.sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
+
+    // Fuzzy search / Keyword filtering (in-memory)
+    if (filters?.q) {
+      const searchTerm = filters.q.toLowerCase();
+      properties = properties.filter(p => 
+        p.title.toLowerCase().includes(searchTerm) ||
+        p.description.toLowerCase().includes(searchTerm) ||
+        p.location.city.toLowerCase().includes(searchTerm) ||
+        p.location.address.toLowerCase().includes(searchTerm)
+      );
+    }
 
     return properties;
   } catch (error) {
@@ -104,13 +122,27 @@ export async function updateProperty(id: string, data: Partial<Property>) {
 
 export async function deleteProperty(id: string) {
   try {
+    // 1. Fetch property to get public_ids
+    const doc = await adminDb.collection(COLLECTION_NAME).doc(id).get();
+    const data = doc.data() as Property | undefined;
+
+    // 2. Delete images from Cloudinary if they exist
+    if (data?.public_ids && data.public_ids.length > 0) {
+      const { deleteCloudinaryImage } = await import('./cloudinary');
+      await Promise.all(
+        data.public_ids.map(publicId => deleteCloudinaryImage(publicId))
+      );
+    }
+
+    // 3. Delete from Firestore
     await adminDb.collection(COLLECTION_NAME).doc(id).delete();
+    
     revalidatePath('/');
     revalidatePath('/propiedades');
     revalidatePath('/admin');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting property:', error);
+    console.error('Error deleting property and its images:', error);
     return { success: false, error: 'Failed to delete property' };
   }
 }

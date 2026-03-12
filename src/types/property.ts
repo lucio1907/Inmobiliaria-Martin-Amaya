@@ -10,12 +10,17 @@ export interface Property {
   location: {
     city: string;
     address: string;
+    coordinates?: string; // Para lotes o terrenos
   };
   features: {
     m2_total: number;
     rooms: number;
     bathrooms: number;
     garage: boolean;
+    dimensions?: {
+      front: number;
+      depth: number;
+    };
   };
   images: string[]; // Cloudinary Secure URLs
   public_ids: string[]; // Para borrar assets

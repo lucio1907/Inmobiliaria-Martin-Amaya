@@ -1,13 +1,21 @@
 'use client'
 
 import Link from "next/link"
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, ArrowRight } from "lucide-react"
+import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone, ArrowRight, Music } from "lucide-react"
 import Logo from '@/components/Logo'
 import { useScroll } from "@/hooks/useScroll"
+import { getSettings } from "@/app/actions/settings"
+import { useEffect, useState } from "react"
+import { SiteSettings } from "@/types/settings"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const { handleScrollToSection } = useScroll();
+  const [settings, setSettings] = useState<SiteSettings | null>(null)
+
+  useEffect(() => {
+    getSettings().then(setSettings)
+  }, [])
 
   return (
     <footer className="relative bg-slate-950 text-slate-300 pt-16 md:pt-24 pb-8 md:pb-12 overflow-hidden border-t border-white/10 mt-12 md:mt-20">
@@ -28,16 +36,19 @@ export default function Footer() {
               <Logo />
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              Tu Inmobiliaria de Confianza M.P. N° 4022. Ofrecemos un servicio premium y personalizado para encontrar la propiedad de tus sueños.
+              {settings?.about.summary || "Tu Inmobiliaria de Confianza M.P. N° 4022. Ofrecemos un servicio premium y personalizado para encontrar la propiedad de tus sueños."}
             </p>
             <div className="flex items-center gap-4">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-accent hover:text-slate-950 transition-all shadow-lg border border-white/5 hover:border-accent/50">
+              <a href={settings?.social.instagram || "https://instagram.com"} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-accent hover:text-slate-950 transition-all shadow-lg border border-white/5 hover:border-accent/50">
                 <Instagram size={18} />
               </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-accent hover:text-slate-950 transition-all shadow-lg border border-white/5 hover:border-accent/50">
+              <a href={settings?.social.facebook || "https://facebook.com"} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-accent hover:text-slate-950 transition-all shadow-lg border border-white/5 hover:border-accent/50">
                 <Facebook size={18} />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-accent hover:text-slate-950 transition-all shadow-lg border border-white/5 hover:border-accent/50">
+              <a href={settings?.social.tiktok || "https://tiktok.com"} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-accent hover:text-slate-950 transition-all shadow-lg border border-white/5 hover:border-accent/50">
+                <Music size={18} />
+              </a>
+              <a href={settings?.social.linkedin || "https://linkedin.com"} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:bg-accent hover:text-slate-950 transition-all shadow-lg border border-white/5 hover:border-accent/50">
                 <Linkedin size={18} />
               </a>
             </div>
@@ -97,20 +108,20 @@ export default function Footer() {
               <li className="flex items-start gap-4 text-sm text-slate-400 font-medium">
                 <MapPin size={18} className="text-accent shrink-0 mt-0.5" />
                 <span>
-                  Oficina Central<br />
-                  Buenos Aires, Argentina
+                  {settings?.contact.office || "Oficina Central"}<br />
+                  {settings?.contact.address || "Buenos Aires, Argentina"}
                 </span>
               </li>
               <li className="flex items-center gap-4 text-sm text-slate-400 font-medium group">
                 <Phone size={18} className="text-accent shrink-0" />
-                <a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '5491112345678'}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-                  +54 9 11 1234-5678
+                <a href={`https://wa.me/${settings?.whatsapp.number || '5491112345678'}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                  {settings?.contact.phone || "+54 9 11 1234-5678"}
                 </a>
               </li>
               <li className="flex items-center gap-4 text-sm text-slate-400 font-medium group">
                 <Mail size={18} className="text-accent shrink-0" />
-                <a href="mailto:info@martin-amaya.com" className="hover:text-white transition-colors">
-                  info@martin-amaya.com
+                <a href={`mailto:${settings?.contact.email || "info@martin-amaya.com"}`} className="hover:text-white transition-colors">
+                  {settings?.contact.email || "info@martin-amaya.com"}
                 </a>
               </li>
             </ul>

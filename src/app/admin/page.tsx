@@ -6,10 +6,16 @@ import { Property } from '@/types/property'
 import { Plus, Pencil, Trash2, ExternalLink, Star } from 'lucide-react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import DeleteModal from '@/components/admin/DeleteModal'
 
 export default function AdminDashboard() {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean, propertyId: string, propertyTitle: string }>({
+    isOpen: false,
+    propertyId: '',
+    propertyTitle: ''
+  })
 
   useEffect(() => {
     fetchProperties()
@@ -21,9 +27,17 @@ export default function AdminDashboard() {
     setLoading(false)
   }
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('¿Seguro quieres eliminar esta propiedad?')) {
-      await deleteProperty(id)
+  const handleDelete = async (id: string, title: string) => {
+    setDeleteModal({
+      isOpen: true,
+      propertyId: id,
+      propertyTitle: title
+    })
+  }
+
+  const confirmDelete = async () => {
+    if (deleteModal.propertyId) {
+      await deleteProperty(deleteModal.propertyId)
       fetchProperties()
     }
   }
@@ -131,7 +145,7 @@ export default function AdminDashboard() {
                         <Link href={`/admin/editar/${p.id}`} className="p-3 bg-white/5 text-slate-400 hover:text-accent hover:bg-accent/10 hover:border-accent/20 rounded-xl transition-all duration-300">
                           <Pencil size={18} />
                         </Link>
-                        <button onClick={() => handleDelete(p.id)} className="p-3 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-400/10 hover:border-red-400/20 rounded-xl transition-all duration-300">
+                        <button onClick={() => handleDelete(p.id, p.title)} className="p-3 bg-white/5 text-slate-400 hover:text-red-400 hover:bg-red-400/10 hover:border-red-400/20 rounded-xl transition-all duration-300">
                           <Trash2 size={18} />
                         </button>
                       </div>
@@ -150,6 +164,13 @@ export default function AdminDashboard() {
           </div>
         </div>
       </motion.div>
+
+      <DeleteModal 
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmDelete}
+        title={deleteModal.propertyTitle}
+      />
     </div>
   )
 }

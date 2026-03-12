@@ -16,6 +16,8 @@ async function PropertiesList({ searchParams }: { searchParams: any }) {
   const properties = await getProperties({
     type: params.type,
     operation: params.operation,
+    location: params.location,
+    q: params.q,
     minPrice: params.minPrice ? Number(params.minPrice) : undefined,
     maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
   });

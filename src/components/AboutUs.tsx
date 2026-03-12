@@ -4,8 +4,16 @@ import { motion } from 'framer-motion'
 import { Building2, Users, Star, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import ScrollReveal from './ScrollReveal'
+import { getSettings } from '@/app/actions/settings'
+import { useEffect, useState } from 'react'
+import { SiteSettings } from '@/types/settings'
 
 export default function AboutUs() {
+  const [settings, setSettings] = useState<SiteSettings | null>(null)
+
+  useEffect(() => {
+    getSettings().then(setSettings)
+  }, [])
   return (
     <section id="nosotros" className="pt-8 pb-16 md:pb-20 relative overflow-hidden">
       {/* Background decoration */}
@@ -25,7 +33,7 @@ export default function AboutUs() {
             </h2>
             
             <p className="text-slate-400 text-sm md:text-base lg:text-lg leading-relaxed font-medium">
-              En J. Martin Amaya Inmobiliaria, no solo vendemos propiedades; <strong className="text-white">construimos relaciones a largo plazo</strong>. Nuestro equipo de profesionales altamente cualificados (M.P. N° 4022) se dedica a ofrecer un servicio premium y personalizado, guiándote en cada paso de tu inversión inmobiliaria.
+              {settings?.about.summary || `En J. Martin Amaya Inmobiliaria, no solo vendemos propiedades; <strong className="text-white">construimos relaciones a largo plazo</strong>. Nuestro equipo de profesionales altamente cualificados (${settings?.about.professional_title || "M.P. N° 4022"}) se dedica a ofrecer un servicio premium y personalizado, guiándote en cada paso de tu inversión inmobiliaria.`}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -67,7 +75,9 @@ export default function AboutUs() {
                transition={{ delay: 0.6, duration: 0.8 }}
                className="absolute -bottom-6 -left-2 sm:-left-6 md:-bottom-12 md:-left-12 bg-white/5 backdrop-blur-2xl border border-white/10 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-2xl max-w-[240px] md:max-w-[280px]"
              >
-               <div className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-1 md:mb-2 tracking-tighter">4022</div>
+               <div className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-1 md:mb-2 tracking-tighter">
+                 {settings?.about.professional_title.replace(/[^0-9]/g, '') || "4022"}
+               </div>
                <div className="text-[8px] md:text-[10px] font-black uppercase text-accent tracking-[0.2em] mb-1">Matrícula Profesional</div>
                <p className="text-slate-400 text-[10px] md:text-xs font-medium leading-relaxed">Garantía de legitimidad y seguridad en cada operación.</p>
              </motion.div>

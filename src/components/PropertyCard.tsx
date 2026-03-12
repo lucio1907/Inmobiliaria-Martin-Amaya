@@ -66,7 +66,9 @@ export default function PropertyCard({ property }: { property: Property }) {
         
         <div className="flex items-center gap-2 text-slate-400 text-xs md:text-sm mb-6">
           <MapPin className="text-accent/50 w-4 h-4 md:w-4 md:h-4 shrink-0" />
-          <span className="truncate font-medium">{property.location.address}, {property.location.city}</span>
+          <span className="truncate font-medium">
+            {property.location.address ? `${property.location.address}, ${property.location.city}` : property.location.city}
+          </span>
         </div>
 
         <div className="grid grid-cols-3 gap-2 sm:gap-4 py-5 md:py-6 border-y border-white/5 mb-6">

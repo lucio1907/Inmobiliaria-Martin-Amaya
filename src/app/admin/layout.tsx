@@ -15,8 +15,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
-      if (!u && pathname !== '/admin/login') {
-        router.push('/admin/login')
+      if (!u) {
+        if (pathname !== '/admin/login') {
+          router.push('/admin/login')
+        } else {
+          setLoading(false)
+        }
       } else {
         setLoading(false)
       }
@@ -31,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } else {
       document.body.style.overflow = 'unset'
     }
-    
+
     // Cleanup function in case component unmounts
     return () => { document.body.style.overflow = 'unset' }
   }, [sidebarOpen])
@@ -55,18 +59,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex flex-col lg:flex-row min-h-screen bg-slate-950 text-white w-full overflow-hidden">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar - responsive positioned */}
-      <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : 'lg:translate-x-0 -translate-x-full'}`}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
 
-      <div className="flex-1 min-h-screen w-full relative flex flex-col">
+      <div className="flex-1 min-h-screen w-full relative flex flex-col lg:pl-[280px]">
         {/* Mobile Header */}
         <div className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-30">
           <div className="scale-75 origin-left">
@@ -80,7 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Subtle background flair */}
         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[120px] -z-10 pointer-events-none translate-x-1/3 -translate-y-1/3" />
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px] -z-10 pointer-events-none -translate-x-1/3 translate-y-1/3" />
-        
+
         <div className="p-4 sm:p-6 lg:p-8 pb-32 min-h-full">
           {children}
         </div>

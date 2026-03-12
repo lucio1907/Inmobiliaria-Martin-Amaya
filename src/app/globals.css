@@ -41,6 +41,18 @@ input[type="button"] {
   cursor: pointer;
 }
 
+/* Remove arrows from number inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 @layer components {
   .luxe-bg {
     @apply fixed inset-0 -z-10 overflow-hidden pointer-events-none;

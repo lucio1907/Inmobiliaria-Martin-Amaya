@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Property } from '@/types/property'
 import { createProperty, updateProperty } from '@/app/actions/properties'
+import { deleteCloudinaryImage } from '@/app/actions/cloudinary'
 import { CldUploadWidget, CldImage } from 'next-cloudinary'
 import { Trash2, Image as ImageIcon, Loader2 } from 'lucide-react'
 
@@ -19,14 +20,33 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
       currency: 'USD',
       operation: 'Venta',
       type: 'Casa',
-      location: { city: '', address: '' },
-      features: { m2_total: 0, rooms: 0, bathrooms: 0, garage: false },
+      location: { city: '', address: '', coordinates: '' },
+      features: { 
+        m2_total: 0, 
+        rooms: 0, 
+        bathrooms: 0, 
+        garage: false,
+        dimensions: { front: 0, depth: 0 }
+      },
       images: [],
       public_ids: [],
       status: 'available',
       featured: false,
     }
   )
+
+  // Auto-generate slug from title
+  useEffect(() => {
+    if (!isEditing && formData.title) {
+      const suggestedSlug = formData.title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      setFormData(prev => ({ ...prev, slug: suggestedSlug }));
+    }
+  }, [formData.title, isEditing]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,7 +74,10 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
     }
   }
 
-  const removeImage = (index: number) => {
+  const removeImage = async (index: number) => {
+    const publicId = formData.public_ids[index]
+    
+    // Optimistic UI update
     setFormData(prev => {
       const newImages = [...prev.images]
       const newPublicIds = [...prev.public_ids]
@@ -62,6 +85,15 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
       newPublicIds.splice(index, 1)
       return { ...prev, images: newImages, public_ids: newPublicIds }
     })
+
+    // Background delete from Cloudinary
+    if (publicId) {
+      try {
+        await deleteCloudinaryImage(publicId)
+      } catch (error) {
+        console.error('Error background deleting image:', error)
+      }
+    }
   }
 
   return (
@@ -130,9 +162,11 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
                 type="number" 
                 required
                 className="flex-grow px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
-                value={formData.price}
-                onFocus={(e) => { if (formData.price === 0) setFormData(prev => ({ ...prev, price: '' as any })) }}
-                onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
+                value={formData.price === 0 ? '' : formData.price}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? 0 : Number(e.target.value);
+                  setFormData(prev => ({ ...prev, price: val }));
+                }}
               />
             </div>
           </div>
@@ -162,12 +196,21 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
             />
           </div>
           <div>
-            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Dirección</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
+              {formData.type === 'Lote' ? 'Coordenadas' : 'Dirección'}
+            </label>
             <input 
               type="text" required
               className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
-              value={formData.location.address}
-              onChange={(e) => setFormData(prev => ({ ...prev, location: { ...prev.location, address: e.target.value } }))}
+              placeholder={formData.type === 'Lote' ? 'ej: -34.8656, -58.5355' : 'ej: Calle Falsa 123'}
+              value={formData.type === 'Lote' ? (formData.location.coordinates || '') : formData.location.address}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                location: { 
+                  ...prev.location, 
+                  [formData.type === 'Lote' ? 'coordinates' : 'address']: e.target.value 
+                } 
+              }))}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -176,50 +219,100 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
               <input 
                 type="number" required
                 className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
-                value={formData.features.m2_total}
-                onFocus={(e) => { if (formData.features.m2_total === 0) setFormData(prev => ({ ...prev, features: { ...prev.features, m2_total: '' as any } })) }}
-                onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, m2_total: Number(e.target.value) } }))}
+                value={formData.features.m2_total === 0 ? '' : formData.features.m2_total}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? 0 : Number(e.target.value);
+                  setFormData(prev => ({ ...prev, features: { ...prev.features, m2_total: val } }));
+                }}
               />
             </div>
-            <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Ambientes</label>
-              <input 
-                type="number" required
-                className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
-                value={formData.features.rooms}
-                onFocus={(e) => { if (formData.features.rooms === 0) setFormData(prev => ({ ...prev, features: { ...prev.features, rooms: '' as any } })) }}
-                onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, rooms: Number(e.target.value) } }))}
-              />
-            </div>
+            {formData.type === 'Lote' && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Frente (m)</label>
+                  <input 
+                    type="number"
+                    className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
+                    value={formData.features.dimensions?.front === 0 ? '' : formData.features.dimensions?.front}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : Number(e.target.value);
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        features: { 
+                          ...prev.features, 
+                          dimensions: { ...prev.features.dimensions!, front: val } 
+                        } 
+                      }));
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Fondo (m)</label>
+                  <input 
+                    type="number"
+                    className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
+                    value={formData.features.dimensions?.depth === 0 ? '' : formData.features.dimensions?.depth}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : Number(e.target.value);
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        features: { 
+                          ...prev.features, 
+                          dimensions: { ...prev.features.dimensions!, depth: val } 
+                        } 
+                      }));
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {formData.type !== 'Lote' && (
+              <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Ambientes</label>
+                <input 
+                  type="number" required
+                  className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
+                  value={formData.features.rooms === 0 ? '' : formData.features.rooms}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                    setFormData(prev => ({ ...prev, features: { ...prev.features, rooms: val } }));
+                  }}
+                />
+              </div>
+            )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Baños</label>
-              <input 
-                type="number" required
-                className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
-                value={formData.features.bathrooms}
-                onFocus={(e) => { if (formData.features.bathrooms === 0) setFormData(prev => ({ ...prev, features: { ...prev.features, bathrooms: '' as any } })) }}
-                onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, bathrooms: Number(e.target.value) } }))}
-              />
+          {formData.type !== 'Lote' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Baños</label>
+                <input 
+                  type="number" required
+                  className="w-full px-6 py-4 bg-slate-950/50 border border-white/5 rounded-2xl focus:ring-2 focus:ring-accent focus:border-transparent text-white transition-all font-medium"
+                  value={formData.features.bathrooms === 0 ? '' : formData.features.bathrooms}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? 0 : Number(e.target.value);
+                    setFormData(prev => ({ ...prev, features: { ...prev.features, bathrooms: val } }));
+                  }}
+                />
+              </div>
+              <div className="flex items-center pt-6">
+                 <label className="flex items-center gap-4 cursor-pointer select-none group">
+                   <div className="relative flex items-center justify-center">
+                     <input 
+                       type="checkbox"
+                       className="peer w-6 h-6 rounded border-white/20 bg-slate-950/50 text-accent focus:ring-accent focus:ring-offset-slate-900 transition-colors cursor-pointer appearance-none checked:bg-accent checked:border-accent border-2"
+                       checked={formData.features.garage}
+                       onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, garage: e.target.checked } }))}
+                     />
+                     <svg className="absolute w-4 h-4 text-slate-950 pointer-events-none opacity-0 peer-checked:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                     </svg>
+                   </div>
+                   <span className="font-bold text-slate-300 group-hover:text-white transition-colors">Tiene Cochera</span>
+                 </label>
+              </div>
             </div>
-            <div className="flex items-center pt-6">
-               <label className="flex items-center gap-4 cursor-pointer select-none group">
-                 <div className="relative flex items-center justify-center">
-                   <input 
-                     type="checkbox"
-                     className="peer w-6 h-6 rounded border-white/10 bg-slate-950/50 text-accent focus:ring-accent focus:ring-offset-slate-900 transition-colors cursor-pointer appearance-none checked:bg-accent checked:border-accent"
-                     checked={formData.features.garage}
-                     onChange={(e) => setFormData(prev => ({ ...prev, features: { ...prev.features, garage: e.target.checked } }))}
-                   />
-                   <svg className="absolute w-4 h-4 text-slate-950 pointer-events-none opacity-0 peer-checked:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                   </svg>
-                 </div>
-                 <span className="font-bold text-slate-300 group-hover:text-white transition-colors">Tiene Cochera</span>
-               </label>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -281,12 +374,12 @@ export default function PropertyForm({ initialData, isEditing = false }: { initi
           <div className="flex flex-wrap items-center gap-10 pt-8 border-t border-white/5">
             <label className="flex items-center gap-4 cursor-pointer select-none group">
                <div className="relative flex items-center justify-center">
-                 <input 
-                   type="checkbox"
-                   className="peer w-6 h-6 rounded border-white/10 bg-slate-950/50 text-accent focus:ring-accent focus:ring-offset-slate-900 transition-colors cursor-pointer appearance-none checked:bg-accent checked:border-accent"
-                   checked={formData.featured}
-                   onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
-                 />
+                  <input 
+                    type="checkbox"
+                    className="peer w-6 h-6 rounded border-white/20 bg-slate-950/50 text-accent focus:ring-accent focus:ring-offset-slate-900 transition-colors cursor-pointer appearance-none checked:bg-accent checked:border-accent border-2"
+                    checked={formData.featured}
+                    onChange={(e) => setFormData(prev => ({ ...prev, featured: e.target.checked }))}
+                  />
                  <svg className="absolute w-4 h-4 text-slate-950 pointer-events-none opacity-0 peer-checked:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                  </svg>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Search, Home, Building2, Map, LayoutGrid, Star } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { clsx, type ClassValue } from 'clsx'
@@ -20,6 +21,17 @@ const PROPERTY_TYPES = [
 
 export default function SearchHero() {
   const [activeType, setActiveType] = useState('all')
+  const [location, setLocation] = useState('')
+  const router = useRouter()
+
+  const handleSearch = () => {
+    const params = new URLSearchParams()
+    if (activeType !== 'all') params.append('type', activeType)
+    if (location.trim()) params.append('q', location.trim())
+    
+    const queryString = params.toString()
+    router.push(`/propiedades${queryString ? `?${queryString}` : ''}`)
+  }
 
   return (
     <section id="home" className="relative pb-12 lg:pt-32 lg:pb-12 overflow-hidden flex min-h-[90vh] md:min-h-0 items-center w-full">
@@ -93,10 +105,16 @@ export default function SearchHero() {
                   <input
                     type="text"
                     placeholder="¿Qué ubicación buscas?"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     className="w-full bg-transparent border-none focus:outline-none text-white font-bold placeholder:text-slate-600 text-sm md:text-base py-1"
                   />
                 </div>
-                <button className="bg-white text-slate-950 px-8 py-3.5 lg:py-4 rounded-lg lg:rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-accent hover:shadow-[0_0_30px_rgba(197,160,89,0.3)] active:scale-95 shrink-0 w-full sm:w-auto">
+                <button 
+                  onClick={handleSearch}
+                  className="bg-white text-slate-950 px-8 py-3.5 lg:py-4 rounded-lg lg:rounded-xl font-black text-xs uppercase tracking-[0.2em] transition-all hover:bg-accent hover:shadow-[0_0_30px_rgba(197,160,89,0.3)] active:scale-95 shrink-0 w-full sm:w-auto"
+                >
                   Buscar
                 </button>
               </div>

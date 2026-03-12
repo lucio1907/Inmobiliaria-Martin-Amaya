@@ -1,4 +1,5 @@
 import { getPropertyBySlug, getProperties } from "@/app/actions/properties";
+import { getSettings } from '@/app/actions/settings'
 import BentoGallery from "@/components/BentoGallery";
 import { MapPin, BedDouble, Bath, Square, Car, CheckCircle2, MessageCircle, ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -29,9 +30,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PropertyPage({ params }: { params: { slug: string } }) {
   const { slug } = await params;
-  const property = await getPropertyBySlug(slug);
-
-  if (!property) notFound();
+  const property = await getPropertyBySlug(slug)
+  const settings = await getSettings()
+  
+  if (!property) return notFound()
 
   const formattedPrice = new Intl.NumberFormat('es-AR', {
     style: 'currency',
@@ -39,9 +41,17 @@ export default async function PropertyPage({ params }: { params: { slug: string 
     maximumFractionDigits: 0,
   }).format(property.price);
 
-  const whatsappMessage = encodeURIComponent(
-    `Hola, me interesa la propiedad: ${property.title} (${process.env.NEXT_PUBLIC_SITE_URL}/propiedades/${property.slug}). ¿Me podrían brindar más información?`
-  );
+  // WhatsApp Message
+  const waNumber = settings.whatsapp.number || "5491112345678"
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const waMessage = `🏡 *Consulta Inmobiliaria - Martin Amaya*
+
+📍 *${property.title}*
+🔗 Ver ficha: ${siteUrl}/propiedades/${property.slug}
+
+Hola! Me interesa obtener más información sobre esta propiedad. ¿Podrían brindarme más detalles o coordinar una visita? Muchas gracias.`
+
+  const whatsappMessage = encodeURIComponent(waMessage);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -97,7 +107,9 @@ export default async function PropertyPage({ params }: { params: { slug: string 
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black text-white mb-4 md:mb-8 leading-[1.1] md:leading-[1] tracking-tighter">{property.title}</h1>
               <div className="flex items-center gap-2 md:gap-3 text-slate-400 text-base md:text-lg lg:text-2xl font-medium">
                 <MapPin className="text-accent/60 shrink-0 w-5 h-5 md:w-7 md:h-7" />
-                <span>{property.location.address}, {property.location.city}</span>
+                <span>
+                  {property.location.address ? `${property.location.address}, ${property.location.city}` : property.location.city}
+                </span>
               </div>
             </div>
 
@@ -136,11 +148,13 @@ export default async function PropertyPage({ params }: { params: { slug: string 
               </div>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {[
-                  { icon: Square, label: 'Superficie', value: `${property.features.m2_total} m²` },
-                  { icon: BedDouble, label: 'Ambientes', value: property.features.rooms },
-                  { icon: Bath, label: 'Baños', value: property.features.bathrooms },
-                  { icon: Car, label: 'Cochera', value: property.features.garage ? 'Sí' : 'No' }
-                ].map((item, i) => (
+                  { icon: Square, label: 'Superficie', value: `${property.features.m2_total} m²`, show: true },
+                  { icon: BedDouble, label: 'Ambientes', value: property.features.rooms, show: property.type !== 'Lote' },
+                  { icon: Bath, label: 'Baños', value: property.features.bathrooms, show: property.type !== 'Lote' },
+                  { icon: Car, label: 'Cochera', value: property.features.garage ? 'Sí' : 'No', show: property.type !== 'Lote' },
+                  { icon: MapPin, label: 'Frente', value: `${property.features.dimensions?.front} m`, show: property.type === 'Lote' && property.features.dimensions?.front },
+                  { icon: MapPin, label: 'Fondo', value: `${property.features.dimensions?.depth} m`, show: property.type === 'Lote' && property.features.dimensions?.depth }
+                ].filter(item => item.show).map((item, i) => (
                   <div key={i} className="bg-slate-900/60 backdrop-blur-xl p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-white/5 flex flex-col items-center text-center group hover:border-accent/30 transition-all duration-500">
                     <item.icon className="text-slate-600 group-hover:text-accent mb-3 md:mb-5 transition-colors w-8 h-8 md:w-10 md:h-10" />
                     <span className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1 md:mb-2">{item.label}</span>
@@ -162,7 +176,7 @@ export default async function PropertyPage({ params }: { params: { slug: string 
                   style={{ border: 0 }}
                   loading="lazy"
                   allowFullScreen
-                  src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(`${property.location.address}, ${property.location.city}`)}`}
+                  src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(property.location.coordinates || `${property.location.address}, ${property.location.city}`)}`}
                 ></iframe>
               </div>
             </div>
@@ -195,7 +209,7 @@ export default async function PropertyPage({ params }: { params: { slug: string 
               </div>
 
               <a
-                href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${whatsappMessage}`}
+                href={`https://wa.me/${waNumber}?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-3 w-full py-5 md:py-6 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-lg md:text-xl rounded-2xl md:rounded-[2rem] transition-colors"
